@@ -84,16 +84,27 @@ public class WeatherController extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d("Clima", "onResume() called");
-        Intent myInntent =getIntent();
+        Intent myInntent = getIntent();
         String city = myInntent.getStringExtra("City");
+        if (city != null) {
 
-        Log.d("Clima", "Getting weather for current location");
-        getWeatherForCurrentLocation();
+            getWeatherForNewCity(city);
+        } else {
+            Log.d("Clima", "Getting weather for current location");
+            getWeatherForCurrentLocation();
+        }
+
     }
 
-
+    // q = city, appid = appid
     // TODO: Add getWeatherForNewCity(String city) here:
+    private void getWeatherForNewCity(String city) {
+        RequestParams params = new RequestParams();
+        params.put("q", city);
+        params.put("appid", APP_ID);
+        letsDoSomeNetworking(params);
 
+    }
 
     // TODO: Add getWeatherForCurrentLocation() here:
     private void getWeatherForCurrentLocation() {
@@ -131,6 +142,7 @@ public class WeatherController extends AppCompatActivity {
             }
         };
         //Auto generated
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -139,9 +151,6 @@ public class WeatherController extends AppCompatActivity {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-
-            // Request permition from user, Context, Permitions, Request code use to track permition  request
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             return;
         }
         mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_TIME, MIN_DISTANCE, mLocationListener);
@@ -185,14 +194,19 @@ public class WeatherController extends AppCompatActivity {
     }
 
     // TODO: Add updateUI() here:
-    public void updateUI(WeatherDataModel weather){
+    public void updateUI(WeatherDataModel weather) {
         mTemperatureLabel.setText(weather.getTemperature());
         mCityLabel.setText(weather.getCity());
-        int resourceID = getResources().getIdentifier(weather.getIconName(),"drawable", getPackageName());
+        int resourceID = getResources().getIdentifier(weather.getIconName(), "drawable", getPackageName());
         mWeatherImage.setImageResource(resourceID);
     }
 
     // TODO: Add onPause() here:
 
-
+    //Free resources
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mLocationManager != null) mLocationManager.removeUpdates(mLocationListener);
+    }
 }
