@@ -14,8 +14,18 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.londonappbrewery.climapm.R;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONObject;
+
+import java.security.Policy;
+
+import cz.msebera.android.httpclient.Header;
 
 
 public class WeatherController extends AppCompatActivity {
@@ -82,8 +92,15 @@ public class WeatherController extends AppCompatActivity {
                 Log.d("Clima", "onLocationChanged() callback received");
                 String longitude = String.valueOf(location.getLongitude());
                 String latitude = String.valueOf(location.getLatitude());
-                Log.d("Clima","longitude is: " + longitude);
-                Log.d("Clima","latitude is: " + latitude);
+                Log.d("Clima", "longitude is: " + longitude);
+                Log.d("Clima", "latitude is: " + latitude);
+
+                RequestParams params = new RequestParams();
+                params.put("lon", longitude);
+                params.put("lat", latitude);
+                params.put("appid", APP_ID);
+
+                letsDoSomeNetworking(params);
             }
 
             @Override
@@ -126,15 +143,33 @@ public class WeatherController extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d("Clima", "onRequestPermitionResult(): Permition Granted!");
                 getWeatherForCurrentLocation();
-            }else {
-                Log.d("Clima","Permission denied =( ");
+            } else {
+                Log.d("Clima", "Permission denied =( ");
             }
         }
     }
 
 
     // TODO: Add letsDoSomeNetworking(RequestParams params) here:
+    public void letsDoSomeNetworking(RequestParams params) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(WEATHER_URL, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("Clima", "Success! JSON: " + response.toString());
 
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e("Clima", "Fail " + throwable.toString());
+                Log.d("Clima", "Status Code " + statusCode);
+                Toast.makeText(WeatherController.this, "Request Failed", Toast.LENGTH_SHORT).show();
+
+            }
+
+        });
+    }
 
     // TODO: Add updateUI() here:
 
