@@ -52,7 +52,7 @@ public class WeatherController extends AppCompatActivity {
     TextView mTemperatureLabel;
 
     // TODO: Declare a LocationManager and a LocationListener here:
-    LocationManager mLocationManager; //Start or stop recuesting updates
+    LocationManager mLocationManager; //Start or stop requesting updates
     LocationListener mLocationListener; // Notify is location change
 
     @Override
@@ -151,6 +151,7 @@ public class WeatherController extends AppCompatActivity {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+           ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             return;
         }
         mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_TIME, MIN_DISTANCE, mLocationListener);
